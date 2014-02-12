@@ -497,13 +497,13 @@ class BaseQuerySet(object):
         if self._scalar:
             for doc in docs:
                 doc_map[doc['_id']] = self._get_scalar(
-                    self._document._from_son(doc))
+                    self._document._from_son(doc, _auto_dereference=self._auto_dereference))
         elif self._as_pymongo:
             for doc in docs:
                 doc_map[doc['_id']] = self._get_as_pymongo(doc)
         else:
             for doc in docs:
-                doc_map[doc['_id']] = self._document._from_son(doc)
+                doc_map[doc['_id']] = self._document._from_son(doc, _auto_dereference=self._auto_dereference)
 
         return doc_map
 
@@ -839,7 +839,7 @@ class BaseQuerySet(object):
     def from_json(self, json_data):
         """Converts json data to unsaved objects"""
         son_data = json_util.loads(json_data)
-        return [self._document._from_son(data) for data in son_data]
+        return [self._document._from_son(data, _auto_dereference=self._auto_dereference) for data in son_data]
 
     # JS functionality
 

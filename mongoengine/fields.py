@@ -548,7 +548,7 @@ class EmbeddedDocumentField(BaseField):
 
     def to_python(self, value):
         if not isinstance(value, self.document_type):
-            return self.document_type._from_son(value)
+            return self.document_type._from_son(value, _auto_dereference=self._auto_dereference)
         return value
 
     def to_mongo(self, value):
@@ -590,7 +590,7 @@ class GenericEmbeddedDocumentField(BaseField):
     def to_python(self, value):
         if isinstance(value, dict):
             doc_cls = get_document(value['_cls'])
-            value = doc_cls._from_son(value)
+            value = doc_cls._from_son(value, _auto_dereference=self._auto_dereference)
 
         return value
 
@@ -656,7 +656,7 @@ class DynamicField(BaseField):
             doc_cls = get_document(value['_cls'])
             if '_ref' in value:
                 value = doc_cls._get_db().dereference(value['_ref'])
-            return doc_cls._from_son(value)
+            return doc_cls._from_son(value, _auto_dereference=self._auto_dereference)
 
         return super(DynamicField, self).to_python(value)
 
@@ -899,7 +899,7 @@ class ReferenceField(BaseField):
         if self._auto_dereference and isinstance(value, DBRef):
             value = self.document_type._get_db().dereference(value)
             if value is not None:
-                instance._data[self.name] = self.document_type._from_son(value)
+                instance._data[self.name] = self.document_type._from_son(value, _auto_dereference=self._auto_dereference)
 
         return super(ReferenceField, self).__get__(instance, owner)
 
@@ -998,7 +998,7 @@ class GenericReferenceField(BaseField):
         reference = value['_ref']
         doc = doc_cls._get_db().dereference(reference)
         if doc is not None:
-            doc = doc_cls._from_son(doc)
+            doc = doc_cls._from_son(doc, _auto_dereference=self._auto_dereference)
         return doc
 
     def to_mongo(self, document):

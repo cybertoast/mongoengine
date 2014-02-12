@@ -156,7 +156,7 @@ class BaseDocument(object):
 
     def __setstate__(self, data):
         if isinstance(data["_data"], SON):
-            data["_data"] = self.__class__._from_son(data["_data"])._data
+            data["_data"] = self.__class__._from_son(data["_data"], _auto_dereference=self._auto_dereference)._data
         for k in ('_changed_fields', '_initialised', '_created', '_data',
                   '_fields_ordered', '_dynamic_fields'):
             if k in data:
@@ -329,7 +329,7 @@ class BaseDocument(object):
     @classmethod
     def from_json(cls, json_data):
         """Converts json data to an unsaved document instance"""
-        return cls._from_son(json_util.loads(json_data))
+        return cls._from_son(json_util.loads(json_data), _auto_dereference=self._auto_dereference)
 
     def __expand_dynamic_values(self, name, value):
         """expand any dynamic values to their correct types / values"""
